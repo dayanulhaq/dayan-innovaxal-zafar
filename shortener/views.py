@@ -8,9 +8,12 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, JsonResponse
 
 def home(request):
+    urls = ShortURL.objects.all().order_by('-created_at')
+    serializer = ShortURLSerializer(urls, many=True)
     return render(request, 'shortener/home.html', {
         'title': 'URL Shortener',
-        'description': 'A simple and fast URL shortener service'
+        'description': 'A simple and fast URL shortener service',
+        'urls': serializer.data
     })
 
 class CreateShortURL(APIView):

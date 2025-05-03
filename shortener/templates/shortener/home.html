@@ -27,7 +27,7 @@
             border-radius: 20px;
             padding: 2rem;
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
@@ -49,6 +49,7 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .input-group {
@@ -94,100 +95,120 @@
             transform: none;
         }
 
-        .result {
+        .url-list {
             margin-top: 2rem;
-            padding: 1.5rem;
-            border-radius: 10px;
+        }
+
+        .url-item {
             background: #f8f9fa;
-            display: none;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .result.show {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
+        .url-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .short-url {
-            color: #667eea;
+        .url-item-title {
             font-weight: 500;
-            word-break: break-all;
-            display: block;
-            margin: 0.5rem 0;
+            color: #333;
         }
 
-        .copy-btn {
-            background: #e9ecef;
-            color: #333;
+        .url-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
             padding: 0.5rem 1rem;
             border-radius: 5px;
             font-size: 0.9rem;
-            margin-top: 0.5rem;
-            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .copy-btn:hover {
-            background: #dee2e6;
+        .update-btn {
+            background: #4CAF50;
+            color: white;
         }
 
-        .error {
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            display: none;
-            padding: 0.5rem;
-            background: #fff5f5;
-            border-radius: 5px;
-            border: 1px solid #ffc9c9;
+        .delete-btn {
+            background: #f44336;
+            color: white;
         }
 
-        .error.show {
-            display: block;
-            animation: shake 0.5s ease-in-out;
+        .stats-btn {
+            background: #2196F3;
+            color: white;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        .url-item-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .loading {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            display: none;
+        .url-item-url {
+            color: #666;
+            word-break: break-all;
         }
 
-        .loading.show {
-            display: block;
+        .url-item-short {
+            color: #667eea;
+            font-weight: 500;
+            word-break: break-all;
         }
 
-        .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .stats {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
+        .url-item-stats {
             color: #666;
             font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .modal-title {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .cancel-btn {
+            background: #e0e0e0;
+            color: #333;
         }
 
         @media (max-width: 480px) {
@@ -201,6 +222,10 @@
 
             button {
                 width: 100%;
+            }
+
+            .url-item-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -222,38 +247,75 @@
             <div class="error" id="errorMessage"></div>
         </form>
 
-        <div class="result" id="result">
-            <p>Your shortened URL:</p>
-            <span class="short-url" id="shortUrl"></span>
-            <button class="copy-btn" onclick="copyToClipboard()">Copy URL</button>
-            <div class="stats">
-                <p>Access count: <span id="accessCount">0</span></p>
+        <div class="url-list" id="urlList">
+            {% for url in urls %}
+            <div class="url-item" data-shortcode="{{ url.shortcode }}">
+                <div class="url-item-header">
+                    <span class="url-item-title">Short URL #{{ forloop.counter }}</span>
+                    <div class="url-item-actions">
+                        <button class="action-btn update-btn" onclick="showUpdateModal('{{ url.shortcode }}')">Update</button>
+                        <button class="action-btn delete-btn" onclick="showDeleteModal('{{ url.shortcode }}')">Delete</button>
+                        <button class="action-btn stats-btn" onclick="showStats('{{ url.shortcode }}')">Stats</button>
+                    </div>
+                </div>
+                <div class="url-item-content">
+                    <div class="url-item-url">Original: {{ url.url }}</div>
+                    <div class="url-item-short">Short: {{ request.scheme }}://{{ request.get_host }}/{{ url.shortcode }}/</div>
+                    <div class="url-item-stats">Access count: {{ url.access_count }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div class="modal" id="updateModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Update URL</h3>
+            <form id="updateForm">
+                {% csrf_token %}
+                <input type="url" id="updateUrlInput" placeholder="Enter new URL" required>
+                <div class="modal-actions">
+                    <button type="button" class="action-btn cancel-btn" onclick="hideUpdateModal()">Cancel</button>
+                    <button type="submit" class="action-btn update-btn">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Delete URL</h3>
+            <p>Are you sure you want to delete this URL?</p>
+            <div class="modal-actions">
+                <button type="button" class="action-btn cancel-btn" onclick="hideDeleteModal()">Cancel</button>
+                <button type="button" class="action-btn delete-btn" onclick="deleteUrl()">Delete</button>
             </div>
         </div>
     </div>
 
     <script>
         const form = document.getElementById('urlForm');
-        const result = document.getElementById('result');
-        const shortUrl = document.getElementById('shortUrl');
         const errorMessage = document.getElementById('errorMessage');
         const loading = document.getElementById('loading');
         const submitBtn = document.getElementById('submitBtn');
-        const accessCount = document.getElementById('accessCount');
+        const updateModal = document.getElementById('updateModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const updateForm = document.getElementById('updateForm');
+        let currentShortcode = null;
 
+        // URL Shortening
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const url = document.getElementById('urlInput').value;
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            // Show loading state
             loading.classList.add('show');
             submitBtn.disabled = true;
             errorMessage.classList.remove('show');
-            result.classList.remove('show');
 
             try {
-                // Create short URL
                 const response = await fetch('/shorten/', {
                     method: 'POST',
                     headers: {
@@ -269,37 +331,95 @@
                 }
 
                 const data = await response.json();
-                
-                // Display shortened URL
-                shortUrl.textContent = window.location.origin + '/' + data.shortcode;
-                result.classList.add('show');
-                errorMessage.style.display = 'none';
-
-                // Get initial stats
-                const statsResponse = await fetch(`/shorten/${data.shortcode}`);
-                if (statsResponse.ok) {
-                    const statsData = await statsResponse.json();
-                    accessCount.textContent = statsData.access_count;
-                }
+                location.reload(); // Reload to show new URL
             } catch (error) {
                 errorMessage.textContent = 'Error: ' + error.message;
                 errorMessage.classList.add('show');
-                result.classList.remove('show');
             } finally {
                 loading.classList.remove('show');
                 submitBtn.disabled = false;
             }
         });
 
-        function copyToClipboard() {
-            const text = shortUrl.textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                const copyBtn = document.querySelector('.copy-btn');
-                copyBtn.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyBtn.textContent = 'Copy URL';
-                }, 2000);
-            });
+        // Update URL
+        function showUpdateModal(shortcode) {
+            currentShortcode = shortcode;
+            updateModal.classList.add('show');
+        }
+
+        function hideUpdateModal() {
+            updateModal.classList.remove('show');
+            currentShortcode = null;
+        }
+
+        updateForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('updateUrlInput').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            try {
+                const response = await fetch(`/shorten/${currentShortcode}/update/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ url }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update URL');
+                }
+
+                location.reload(); // Reload to show updated URL
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Delete URL
+        function showDeleteModal(shortcode) {
+            currentShortcode = shortcode;
+            deleteModal.classList.add('show');
+        }
+
+        function hideDeleteModal() {
+            deleteModal.classList.remove('show');
+            currentShortcode = null;
+        }
+
+        async function deleteUrl() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            try {
+                const response = await fetch(`/shorten/${currentShortcode}/delete/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete URL');
+                }
+
+                location.reload(); // Reload to show updated list
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Show Stats
+        async function showStats(shortcode) {
+            try {
+                const response = await fetch(`/shorten/${shortcode}/stats/`);
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Access count: ${data.access_count}`);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
         }
     </script>
 </body>

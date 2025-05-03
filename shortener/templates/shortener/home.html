@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .url-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        input[type="url"] {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .short-url {
+            color: #667eea;
+            font-weight: 500;
+            word-break: break-all;
+            display: block;
+            margin: 0.5rem 0;
+        }
+
+        .copy-btn {
+            background: #e9ecef;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .copy-btn:hover {
+            background: #dee2e6;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+            padding: 0.5rem;
+            background: #fff5f5;
+            border-radius: 5px;
+            border: 1px solid #ffc9c9;
+        }
+
+        .error.show {
+            display: block;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .loading {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }}</h1>
+        <p>{{ description }}</p>
+        
+        <form class="url-form" id="urlForm">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="url" id="urlInput" placeholder="Enter your long URL here" required>
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+            <button type="submit" id="submitBtn">Shorten URL</button>
+            <div class="error" id="errorMessage"></div>
+        </form>
+
+        <div class="result" id="result">
+            <p>Your shortened URL:</p>
+            <span class="short-url" id="shortUrl"></span>
+            <button class="copy-btn" onclick="copyToClipboard()">Copy URL</button>
+            <div class="stats">
+                <p>Access count: <span id="accessCount">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('urlForm');
+        const result = document.getElementById('result');
+        const shortUrl = document.getElementById('shortUrl');
+        const errorMessage = document.getElementById('errorMessage');
+        const loading = document.getElementById('loading');
+        const submitBtn = document.getElementById('submitBtn');
+        const accessCount = document.getElementById('accessCount');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('urlInput').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Show loading state
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+            errorMessage.classList.remove('show');
+            result.classList.remove('show');
+
+            try {
+                // Create short URL
+                const response = await fetch('/shorten/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ url }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to shorten URL');
+                }
+
+                const data = await response.json();
+                
+                // Display shortened URL
+                shortUrl.textContent = window.location.origin + '/' + data.shortcode;
+                result.classList.add('show');
+                errorMessage.style.display = 'none';
+
+                // Get initial stats
+                const statsResponse = await fetch(`/shorten/${data.shortcode}`);
+                if (statsResponse.ok) {
+                    const statsData = await statsResponse.json();
+                    accessCount.textContent = statsData.access_count;
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Error: ' + error.message;
+                errorMessage.classList.add('show');
+                result.classList.remove('show');
+            } finally {
+                loading.classList.remove('show');
+                submitBtn.disabled = false;
+            }
+        });
+
+        function copyToClipboard() {
+            const text = shortUrl.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy URL';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html> 

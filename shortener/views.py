@@ -8,73 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, JsonResponse
 
 def home(request):
-    return JsonResponse({
-        "message": "Welcome to the URL Shortener API!",
-        "documentation": {
-            "base_url": "http://127.0.0.1:8000",
-            "endpoints": [
-                {
-                    "path": "/",
-                    "method": "GET",
-                    "description": "API Documentation",
-                    "response": "This documentation page"
-                },
-                {
-                    "path": "/shorten",
-                    "method": "POST",
-                    "description": "Create a new short URL",
-                    "request": {
-                        "Content-Type": "application/json",
-                        "body": {
-                            "url": "https://www.example.com/very/long/path"
-                        }
-                    },
-                    "response": {
-                        "shortcode": "abc123",
-                        "short_url": "http://127.0.0.1:8000/abc123"
-                    }
-                },
-                {
-                    "path": "/shorten/<shortcode>",
-                    "method": "GET",
-                    "description": "Retrieve original URL for a shortcode",
-                    "example": "GET /shorten/abc123",
-                    "response": "Returns the original URL and usage statistics"
-                },
-                {
-                    "path": "/shorten/<shortcode>/update",
-                    "method": "PUT",
-                    "description": "Update the original URL for a shortcode",
-                    "request": {
-                        "Content-Type": "application/json",
-                        "body": {
-                            "url": "https://www.updated.com"
-                        }
-                    },
-                    "example": "PUT /shorten/abc123/update"
-                },
-                {
-                    "path": "/shorten/<shortcode>/delete",
-                    "method": "DELETE",
-                    "description": "Delete a short URL",
-                    "example": "DELETE /shorten/abc123/delete",
-                    "response": "204 No Content on success"
-                },
-                {
-                    "path": "/<shortcode>",
-                    "method": "GET",
-                    "description": "Redirect to original URL",
-                    "example": "GET /abc123",
-                    "response": "Redirects to the original URL"
-                }
-            ],
-            "notes": [
-                "All endpoints return JSON responses unless specified otherwise",
-                "The shortcode is automatically generated if not provided",
-                "Shortcodes are case-sensitive",
-                "URLs must be properly formatted with http:// or https://"
-            ]
-        }
+    return render(request, 'shortener/home.html', {
+        'title': 'URL Shortener',
+        'description': 'A simple and fast URL shortener service'
     })
 
 class CreateShortURL(APIView):

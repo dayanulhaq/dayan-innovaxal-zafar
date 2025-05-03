@@ -2,7 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.home),  # Root URL pattern
     path('shorten', views.CreateShortURL.as_view()),
     path('shorten/<str:shortcode>', views.RetrieveOriginalURL.as_view()),
     path('shorten/<str:shortcode>/update', views.UpdateShortURL.as_view()),

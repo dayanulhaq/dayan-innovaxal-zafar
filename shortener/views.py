@@ -45,6 +45,17 @@ class UpdateShortURL(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class DeleteShortURL(APIView):
+    def delete(self, request, shortcode):
+        url = get_object_or_404(ShortURL, shortcode=shortcode)
+        url.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class GetStatistics(APIView):
+    def get(self, request, shortcode):
+        url = get_object_or_404(ShortURL, shortcode=shortcode)
+        serializer = ShortURLSerializer(url)
+        return Response(serializer.data)
 
 def redirect_view(request, shortcode):
     url = get_object_or_404(ShortURL, shortcode=shortcode)

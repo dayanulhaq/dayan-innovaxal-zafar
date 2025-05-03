@@ -14,7 +14,8 @@ def home(request):
             "POST /shorten": "Create short URL",
             "GET /shorten/<shortcode>": "Retrieve original URL",
             "PUT /shorten/<shortcode>/update": "Update original URL",
-            "DELETE /shorten/<shortcode>/delete": "Delete shortened URL"
+            "DELETE /shorten/<shortcode>/delete": "Delete shortened URL",
+            "GET /shorten/<shortcode>/stats": "Get usage stats"
         }
     })
 

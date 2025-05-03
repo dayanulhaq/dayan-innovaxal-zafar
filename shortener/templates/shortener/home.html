@@ -228,6 +228,86 @@
                 flex-direction: column;
             }
         }
+
+        .documentation {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .documentation h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .endpoint {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .method {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .method.get {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .method.post {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .method.put {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .method.delete {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .url {
+            font-family: monospace;
+            color: #666;
+            word-break: break-all;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .example {
+            background: #f5f5f5;
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .example pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
@@ -246,6 +326,70 @@
             <button type="submit" id="submitBtn">Shorten URL</button>
             <div class="error" id="errorMessage"></div>
         </form>
+
+        <div class="documentation">
+            <h2>API Documentation</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/shorten/&lt;shortcode&gt;/</span>
+                </div>
+                <div class="description">Retrieves the original URL and statistics for a given shortcode.</div>
+                <div class="example">
+                    <pre>GET http://127.0.0.1:8000/shorten/abc123/</pre>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method put">PUT</span>
+                    <span class="url">/shorten/&lt;shortcode&gt;/update/</span>
+                </div>
+                <div class="description">Updates the original URL for a given shortcode.</div>
+                <div class="example">
+                    <pre>PUT /shorten/abc123/update/
+Content-Type: application/json
+
+{
+  "url": "https://www.updated.com"
+}</pre>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/shorten/&lt;shortcode&gt;/delete/</span>
+                </div>
+                <div class="description">Deletes the entry for a given shortcode.</div>
+                <div class="example">
+                    <pre>DELETE /shorten/abc123/delete/</pre>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/shorten/&lt;shortcode&gt;/stats/</span>
+                </div>
+                <div class="description">Returns statistics like number of visits for a given shortcode.</div>
+                <div class="example">
+                    <pre>GET /shorten/abc123/stats/</pre>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/&lt;shortcode&gt;/</span>
+                </div>
+                <div class="description">Redirects to the original URL when someone visits the short URL in their browser.</div>
+                <div class="example">
+                    <pre>Visit: http://127.0.0.1:8000/abc123/</pre>
+                </div>
+            </div>
+        </div>
 
         <div class="url-list" id="urlList">
             {% for url in urls %}

@@ -148,6 +148,11 @@
             color: white;
         }
 
+        .open-btn {
+            background: #9C27B0;
+            color: white;
+        }
+
         .url-item-content {
             display: flex;
             flex-direction: column;
@@ -253,6 +258,7 @@
                 <div class="url-item-header">
                     <span class="url-item-title">Short URL #{{ forloop.counter }}</span>
                     <div class="url-item-actions">
+                        <button class="action-btn open-btn" onclick="openUrl('{{ url.shortcode }}')">Open</button>
                         <button class="action-btn update-btn" onclick="showUpdateModal('{{ url.shortcode }}')">Update</button>
                         <button class="action-btn delete-btn" onclick="showDeleteModal('{{ url.shortcode }}')">Delete</button>
                         <button class="action-btn stats-btn" onclick="showStats('{{ url.shortcode }}')">Stats</button>
@@ -320,9 +326,11 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({ url }),
+                    credentials: 'same-origin'
                 });
 
                 if (!response.ok) {
@@ -362,9 +370,11 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({ url }),
+                    credentials: 'same-origin'
                 });
 
                 if (!response.ok) {
@@ -395,8 +405,10 @@
                 const response = await fetch(`/shorten/${currentShortcode}/delete/`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRFToken': csrfToken
-                    }
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
                 });
 
                 if (!response.ok) {
@@ -412,7 +424,12 @@
         // Show Stats
         async function showStats(shortcode) {
             try {
-                const response = await fetch(`/shorten/${shortcode}/stats/`);
+                const response = await fetch(`/shorten/${shortcode}/stats/`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
                 if (response.ok) {
                     const data = await response.json();
                     alert(`Access count: ${data.access_count}`);
@@ -420,6 +437,11 @@
             } catch (error) {
                 alert('Error: ' + error.message);
             }
+        }
+
+        // Open URL
+        function openUrl(shortcode) {
+            window.open(`/${shortcode}/`, '_blank');
         }
     </script>
 </body>
